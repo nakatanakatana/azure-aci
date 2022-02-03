@@ -30,6 +30,7 @@ providers:
   azure:
     ## Set to true if deploying to Azure Kubernetes Service (AKS), otherwise false
     targetAKS: true
+    targetGKE: false
     clientId:
     clientKey:
     tenantId:
