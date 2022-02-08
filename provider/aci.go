@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"reflect"
 	"strconv"
@@ -1329,6 +1330,18 @@ func (p *ACIProvider) getImagePullSecrets(pod *v1.Pod) ([]aci.ImageRegistryCrede
 	return ips, nil
 }
 
+func removeServerPort(server string) string {
+	u, err := url.Parse(server)
+	if err != nil {
+		return server
+	}
+	if u.Host == "" {
+		fmt.Println("empty host")
+		u, _ = url.Parse("tmp://" + server)
+	}
+	return u.Hostname()
+}
+
 func makeRegistryCredential(server string, authConfig AuthConfig) (*aci.ImageRegistryCredential, error) {
 	username := authConfig.Username
 	password := authConfig.Password
@@ -1353,7 +1366,7 @@ func makeRegistryCredential(server string, authConfig AuthConfig) (*aci.ImageReg
 	}
 
 	cred := aci.ImageRegistryCredential{
-		Server:   server,
+		Server:   removeServerPort(server),
 		Username: username,
 		Password: password,
 	}
@@ -1367,7 +1380,7 @@ func makeRegistryCredentialFromDockerConfig(server string, configEntry DockerCon
 	}
 
 	cred := aci.ImageRegistryCredential{
-		Server:   server,
+		Server:   removeServerPort(server),
 		Username: configEntry.Username,
 		Password: configEntry.Password,
 	}
